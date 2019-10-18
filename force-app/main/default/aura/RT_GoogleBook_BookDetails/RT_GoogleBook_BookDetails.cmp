@@ -1,0 +1,39 @@
+<aura:component >
+    <aura:attribute name="book" type="Object" />
+    <aura:handler event="c:RT_GoogleBookSelected" action="{!c.onBookselected}" />
+    <!--  Complete Book Details  -->
+    <lightning:card iconName="custom:custom55">
+        <aura:set attribute="title">
+            Book details
+        </aura:set>
+        <aura:if isTrue="{!v.book == null? false:true}">
+            <div class="slds-p-horizontal--small">
+                <div class="boatproperty">
+                    <span class="boldFont">Book Title: </span>
+                    <span>{!v.book.volumeInfo.title}</span>
+                </div>
+                <div class="boatproperty ">
+                    <span class="boldFont">Authors:</span>
+                    <aura:iteration items="{!v.book.volumeInfo.authors}" var="authour">
+                        <span>{!authour} <br></br></span>
+                    </aura:iteration>
+                </div>
+                <div class="boatproperty">
+                    <span class="boldFont">publisher:</span>
+                    <span> {!v.book.volumeInfo.publisher} </span>
+                </div>
+                <div class="boatproperty">
+                    <span class="boldFont">Rating: </span>
+                      <span> {!v.book.volumeInfo.averageRating} </span>
+                    <!--  <span> <c:FiveStarRating value="{!v.book.volumeInfo.averageRating}" readonly="true" /> </span> -->
+                </div>
+            </div> 
+            <aura:set attribute="else">
+                <div class="slds-p-horizontal--small boldFont">
+                    Select Book to see details
+                </div>
+            </aura:set>
+        </aura:if> 
+    </lightning:card>
+    
+</aura:component>

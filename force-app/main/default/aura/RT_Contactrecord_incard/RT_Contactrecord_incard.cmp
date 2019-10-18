@@ -1,0 +1,203 @@
+<aura:component controller="RT_Contactrecord_incard" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction"
+                access="global">
+    <aura:handler name="init" value="{!this}" action="{!c.onload}"/>
+    <aura:attribute name="CurrentUser" type="String" />
+    <aura:attribute name="Contactlist" type="List[]" />
+    
+    <!-- For CurrentRecordId  -->
+    <aura:attribute name="CurrentRecId" type="String"/>
+    
+    <!--   Lookup attributes    --> 
+    <aura:attribute name="selectedRecord" type="sObject" default="{}" description="Use,for store SELECTED sObject Record"/>
+    <aura:attribute name="listOfSearchRecords" type="List" description="Use,for store the list of search records which returns from apex class"/>
+    <aura:attribute name="SearchKeyWord" type="string"/>
+    <aura:attribute name="objectAPIName" type="string" default=""/>
+    <aura:attribute name="IconName" type="string" default="standard:user"/>
+    <aura:attribute name="label" type="string" default=""/>
+    <aura:attribute name="Message" type="String" default=""/>
+    
+    <!--declare events handlers-->  
+    <aura:handler name="oSelectedRecordEvent" event="c:RT_Accountevent" action="{!c.handleComponentEvent}"/>
+    
+    <!-- Check box -->  
+    <aura:attribute name="selectedContactName" type="String"/>	
+    <aura:attribute name="holdCheckBoxValue" type="Boolean" default="false"/>
+    
+    <!--For PopupModel -->
+    <aura:attribute name="isModalOpen" type="boolean" default="false"/>
+    <aura:attribute name="isChangeOwnerModalOpen" type="boolean" default="false"/>
+    
+    <!--  PAGE HEADER --> 
+    <div class="slds-card__header slds-grid ">
+        <header class="slds-media slds-media_center slds-has-flexi-truncate">
+            <h1 class="slds-card__header-title slds-align--absolute-center">
+                <div  title="{!v.CurrentUser}">{!v.CurrentUser}</div> 
+            </h1>
+        </header>
+    </div>
+    
+    <!-- page body -->
+    <div class="slds-scrollable_y" style="height:20rem">
+        
+        <aura:iteration items="{!v.Contactlist}" var="Con" >
+            
+            <div class="demo-only" style="width:100%">
+                <ul class="slds-has-dividers_around-space">
+                    <li class="slds-item">
+                        <article class="slds-tile slds-tile_board">
+                            <div class="slds-card__header slds-grid">
+                                <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                                    <div class="slds-media__body">
+                                        <h2 class="slds-card__header-title">
+                                            <div  title="{!Con.Name}" aura:id="ConId">{!Con.Name} </div>
+                                        </h2>
+                                        <div title="{!Con.Account.name}">{!Con.Account.Name}</div>
+                                    </div> 
+                                    
+                                    <div class="slds-no-flex ">
+                                        <lightning:buttonMenu aura:id="menu" onselect="{!c.handleSelect }" alternativeText="Show menu"   class = "{!Con.Id}">
+                                            <lightning:menuItem value="Edit" label="Edit" />
+                                            <lightning:menuItem value="Delete" label="Delete" />
+                                            <lightning:menuItem value="Change Owner" label="Change Owner" />
+                                        </lightning:buttonMenu>
+                                    </div>
+                                </header>
+                            </div>
+                        </article>
+                    </li>
+                </ul>
+            </div>
+        </aura:iteration>
+    </div>
+    
+    <!-- modal window to delete-->
+    
+    <div class="slds-m-around_xx-large" >
+        <aura:if isTrue="{!v.isModalOpen}">
+            
+            <!-- Modal/Popup Box starts here-->
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <!-- Modal/Popup Box Header Starts here-->
+                    <header class="slds-modal__header">
+                        <lightning:buttonIcon iconName="utility:close"
+                                              onclick="{!c.closeModel }"
+                                              alternativeText="close"
+                                              variant="bare-inverse"
+                                              class="slds-modal__close"/>
+                        <h1 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">
+                            Delete Contact
+                        </h1>
+                    </header>
+                    <!--Modal/Popup Box Body Starts here-->
+                    <div class="slds-modal__content slds-p-around_medium slds-modal__content_center" id="modal-content-id-1">
+                        <p><b> Are you sure you want to delete this contact?  </b>  </p>
+                    </div>
+                    <!--Modal/Popup Box Footer Starts here-->
+                    <footer class="slds-modal__footer">
+                        <lightning:button variant="neutral"
+                                          label="Cancel"
+                                          title="Cancel"
+                                          onclick="{!c.closeModel }"/>
+                        <lightning:button variant="brand"
+                                          label="Delete"
+                                          title="Delete"
+                                          onclick="{!c.doDelete}"/>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </aura:if>
+    </div>
+    
+    
+    <!-- modal window to change owner-->
+    
+    <div class="slds-m-around_xxx-large" style="height:640px">
+        <aura:if isTrue="{!v.isChangeOwnerModalOpen}">
+            
+            <!-- Modal/Popup Box starts here-->
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <!-- Modal/Popup Box Header Starts here-->
+                    <header class="slds-modal__header">
+                        <lightning:buttonIcon iconName="utility:close"
+                                              onclick="{! c.closeModel }"
+                                              alternativeText="close"
+                                              variant="bare-inverse"
+                                              class="slds-modal__close"/>
+                        <h1 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">
+                            Change Contact Owner
+                        </h1>
+                    </header>
+                    <!--Modal/Popup Box Body Starts here-->
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                        
+                        <!--  Client lookup field  -->
+                        <div onmouseleave="{!c.onblur}" aura:id="searchRes" class="slds-form-element slds-lookup slds-is-close" data-select="single">
+                            <label class="slds-form-element__label" for="lookup-348">{!v.label}</label>
+                            <!--This part is for display search bar for lookup-->  
+                            <div class="slds-form-element__control">
+                                
+                                <div class="slds-input-has-icon slds-input-has-icon--right">
+                                    <!-- This markup is for when an record is selected -->
+                                    <div aura:id="lookup-pill" class="slds-pill-container slds-hide">
+                                        <lightning:pill class="pillSize" label="{!v.selectedRecord.Name}" name="{!v.selectedRecord.Name}" onremove="{! c.clear }">
+                                            <aura:set attribute="media">
+                                                <lightning:icon iconName="{!v.IconName}" size="x-small" alternativeText="{!v.IconName}"/>
+                                            </aura:set>
+                                        </lightning:pill>
+                                    </div>
+                                    <div aura:id="lookupField" class="slds-show">
+                                        <lightning:icon class="slds-input__icon slds-show" iconName="utility:search" size="x-small" alternativeText="search"/>
+                                        <span class="slds-icon_container  slds-combobox__input-entity-icon" title="record">
+                                            <lightning:icon class="slds-icon slds-icon slds-icon_small slds-icon-text-default" iconName="{!v.IconName}" size="x-small" alternativeText="icon"/>
+                                            <span class="slds-assistive-text"></span>
+                                        </span>
+                                        <ui:inputText click="{!c.onfocus}" updateOn="keyup" keyup="{!c.keyPressController}" class="slds-lookup__search-input slds-input leftPaddingClass" value="{!v.SearchKeyWord}" placeholder="search.."/>
+                                    </div>   
+                                </div>
+                            </div>
+                            <!--This part is for Display typehead lookup result List-->  
+                            <ul style="min-height:40px;margin-top:0px !important" class="slds-listbox slds-listbox_vertical slds-dropdown slds-dropdown_fluid slds-lookup__menu slds" role="listbox">
+                                <lightning:spinner class="slds-hide" variant="brand" size="small" aura:id="mySpinner"/>
+                                <center> {!v.Message}</center>
+                                <aura:iteration items="{!v.listOfSearchRecords}" var="singleRec">
+                                    <c:RT_Contactrecord_incard_child oRecord="{!singleRec}" IconName="{!v.IconName}"/>
+                                </aura:iteration>
+                            </ul>
+                        </div>
+                        
+                        <lightning:input aura:id="emailCheckbox" label="Send Notification Email" type="checkbox" name="emailIsSent" 
+                                         value="holdCheckBoxValue" onchange="{!c.handleCheck}"/>
+                        
+                        
+                        <p><b> 
+                            The new owner will also become the owner of these records related to contact name that are owned by you 
+                            </b></p>
+                        <ul class="slds-list--dotted">
+                            <li > Notes and attachments </li>
+                            <li>  Open activities </li>
+                        </ul>
+                        
+                    </div>
+                    
+                    
+                    <!--Modal/Popup Box Footer Starts here-->
+                    <footer class="slds-modal__footer">
+                        <lightning:button variant="neutral"
+                                          label="Cancel"
+                                          title="Cancel"
+                                          onclick="{!c.closeModel }"/>
+                        <lightning:button variant="brand"
+                                          label="Submit"
+                                          title="Submit"
+                                          onclick="{!c.doSubmit}"/>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </aura:if>
+    </div>
+    
+</aura:component>

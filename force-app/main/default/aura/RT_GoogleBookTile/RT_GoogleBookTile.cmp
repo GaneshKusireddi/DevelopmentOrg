@@ -1,0 +1,12 @@
+<aura:component access="global">
+    <aura:attribute name="book" type="object" />
+    <aura:registerEvent name="Bookselected" type="c:RT_GoogleBookSelected" />
+    <aura:attribute name='selected' type='Boolean' default='false'/> 
+    <lightning:button class="{!v.selected ? 'tile selected' : 'tile'}" onclick="{!c.onBookclick}" >
+        <div style="{!'background-image:url(\'' + v.book.volumeInfo.imageLinks.thumbnail + '\'); '}" class="innertile">
+            <div class="lower-third">
+                <h1 class="slds-truncate">{!v.book.volumeInfo.title}</h1>
+            </div>
+        </div>
+    </lightning:button>
+</aura:component>

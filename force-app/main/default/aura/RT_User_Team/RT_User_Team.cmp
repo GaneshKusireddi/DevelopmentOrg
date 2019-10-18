@@ -1,0 +1,142 @@
+<aura:component Controller = "RT_UserTeam" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+    
+    <aura:handler name="init" value="{!this}" action="{!c.onload}" /> 
+    
+    <aura:attribute name="UserTeamList" type="List[]" /> 
+    
+    <aura:attribute name="UserRecord" type="UserTeam__c" default="{'sobjectType': 'UserTeam__c',
+                                                                  'FirstName__c':'',
+                                                                  'LastName__c':'',
+                                                                  'Phone__c':'',
+                                                                  'Email__c':'',
+                                                                  'Profile__c':''}"/>
+    <!-- picklist values -->
+    <aura:attribute name="Profile" type="String" default="-none-"/> 
+    <aura:attribute name="profilePicklist" type="string" default="-none-"/>
+    
+    <!--   Lookup attributes    --> 
+    <aura:attribute name="selectedRecord" type="User" default="{}" description="Used to store SELECTED sObject Record"/>
+    <aura:attribute name="listOfSearchRecords" type="List" description="Used to store the list of search records which returns from apex class"/>
+    <aura:attribute name="SearchKeyWord" type="string"/>
+    <aura:attribute name="objectAPIName" type="string" default=""/>
+    <aura:attribute name="IconName" type="string" default=""/>
+    <aura:attribute name="label" type="string" default=""/>
+    <aura:attribute name="Message" type="String" default=""/>
+    <!--declare events handlers-->  
+    <aura:handler name="oSelectedAccountEvent" event="c:RT_Accountevent" action="{!c.handleComponentEvent}"/>
+    
+    <div class="slds-grid slds-wrap">
+        
+        <!-- PAGE HEADER -->
+        <div class="slds-col slds-size_12-of-12 slds-page-header slds-align--absolute-center">
+            <h1 class="slds-page-header__title">
+                <div  title="{!v.UserTeamList[0].UserName__r.Name}">{!v.UserTeamList[0].UserName__r.Name}</div> 
+            </h1>
+        </div>
+        <!-- / PAGE HEADER -->
+        <!-- NEW  FORM -->
+        <div class=" slds-col slds-size_3-of-12">
+            <fieldset class="slds-box slds-theme--default slds-container--small">
+                <form class="slds-form--stacked">          
+                    
+                    <lightning:input type="text" aura:id="UserRecordfrom" 
+                                     label="FirstName"
+                                     name="FirstName"
+                                     value="{!v.UserRecord.FirstName__c}"/>
+                    
+                    <lightning:input type="text" aura:id="UserRecordfrom" 
+                                     label="LastName"
+                                     name="LastName__c"
+                                     value="{!v.UserRecord.LastName__c}"/>
+                    
+                    <!--  Client lookup field  -->
+                    <!-- https://www.lightningdesignsystem.com/components/lookups/ --> 
+                    
+                    <div onmouseleave="{!c.onblur}" aura:id="searchRes" class="slds-form-element slds-lookup slds-is-close" data-select="single">
+                        <label class="slds-form-element__label" for="lookup-348">UserName</label>
+                        <!--This part is for display search bar for lookup-->  
+                        <div class="slds-form-element__control">
+                            <div class="slds-input-has-icon slds-input-has-icon--right">
+                                <!-- This markup is for when an record is selected -->
+                                <div aura:id="lookup-pill" class="slds-pill-container slds-hide">
+                                    <lightning:pill class="pillSize" label="{!v.selectedRecord.Name}" name="{!v.selectedRecord.UserName__c}" onremove="{! c.clear }">
+                                        <aura:set attribute="media">
+                                            <lightning:icon iconName="{!v.IconName}" size="x-small" alternativeText="{!v.IconName}"/>
+                                        </aura:set>
+                                    </lightning:pill>
+                                </div>
+                                <div aura:id="lookupField" class="slds-show">
+                                    <lightning:icon class="slds-input__icon slds-show" iconName="utility:search" size="x-small" alternativeText="search"/>
+                                    <span class="slds-icon_container  slds-combobox__input-entity-icon" title="record">
+                                        <lightning:icon class="slds-icon slds-icon slds-icon_small slds-icon-text-default" iconName="{!v.IconName}" size="x-small" alternativeText="icon"/>
+                                        <span class="slds-assistive-text"></span>
+                                    </span>
+                                    <ui:inputText click="{!c.onfocus}" updateOn="keyup" keyup="{!c.keyPressController}" class="slds-lookup__search-input slds-input leftPaddingClass" value="{!v.SearchKeyWord}" placeholder="search.."/>
+                                </div>   
+                            </div>
+                        </div>
+                        <!--This part is for Display typehead lookup result List-->  
+                        <ul style="min-height:40px;margin-top:0px !important" class="slds-listbox slds-listbox_vertical slds-dropdown slds-dropdown_fluid slds-lookup__menu slds" role="listbox">
+                            <lightning:spinner class="slds-hide" variant="brand" size="small" aura:id="mySpinner"/>
+                            <center> {!v.Message}</center>
+                            <aura:iteration items="{!v.listOfSearchRecords}" var="singleRec">
+                                <c:RT_UserTeamChild oUser="{!singleRec}" IconName="{!v.IconName}"/>
+                            </aura:iteration>
+                        </ul>
+                    </div>
+                    
+                    <lightning:input type="Phone" aura:id="UserRecordfrom" 
+                                     label="Phone"
+                                     name="Phone" 
+                                     value="{!v.UserRecord.Phone__c}"/>
+                    
+                    <lightning:input type="Email" aura:id="UserRecordfrom" 
+                                     label="Email"
+                                     name="Email"
+                                     value="{!v.UserRecord.Email__c}"/>
+                    
+                    <lightning:select name="Profile" 
+                                      label="Profile" 
+                                      value="{!v.UserRecord.Profile__c}"  >
+                        <option value="None">None</option>
+                        <aura:iteration items="{!v.profilePicklist}" var="opt">
+                            <option value="{!opt}">{!opt}</option>
+                        </aura:iteration>
+                    </lightning:select>                 
+                    
+                    <lightning:button label="Save" 
+                                      class="slds-m-bottom--medium"
+                                      variant="brand"
+                                      onclick="{!c.Save}"/>
+                </form>
+            </fieldset>
+        </div> 
+        <!-- Table -->
+        <div class=" slds-col slds-size_9-of-12">
+            <table class="slds-table slds-table_bordered slds-table_cell-buffer" > 
+                <thead>
+                    <tr class="slds-text-title_caps">
+                        <th scope="col"><div  title="FirstName">FirstName</div></th>
+                        <th scope="col"><div  title="LastName">LastName</div></th>
+                        <th scope="col"><div  title="UserName">UserName</div></th>
+                        <th scope="col"><div  title="Email">Phone</div></th>
+                        <th scope="col"><div  title="Email">Email</div></th>
+                        <th scope="col"><div  title="Profile">Profile</div></th>
+                    </tr>
+                </thead>   
+                <tbody>  
+                    <aura:iteration items="{!v.UserTeamList}" var="User" >
+                        <tr>
+                            <th scope="row"><div  title="{!User.FirstName__c}">{!User.FirstName__c}</div></th>
+                            <td><div title="{!User.LastName__c}">{!User.LastName__c}</div></td>
+                            <td><div  title="{!User.UserName__r.Name}">{!User.UserName__r.Name}</div></td>
+                            <td><div  title="{!User.Phone__c }">{!User.Phone__c}</div></td>
+                            <td><div  title="{!User.Email__c }">{!User.Email__c}</div></td>
+                            <td><div  title="{!User.Profile__c }">{!User.Profile__c}</div></td>
+                        </tr>
+                    </aura:iteration>
+                </tbody>
+            </table>
+        </div> 
+    </div>
+</aura:component>

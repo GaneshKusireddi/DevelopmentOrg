@@ -1,0 +1,72 @@
+<aura:component controller = "RT_Account_Add_Del_Rows_Dynamically" implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction" access="global" >
+    
+    <aura:attribute name="accountList" type="Account[]"/> 
+    
+    <aura:handler name="init" value="{!this}" action="{!c.onload}" />  
+    
+    <div class="slds-m-around--xx-large">
+        <div class="slds-page-header">
+            <h1 class="slds-page-header__title">Create Multiple Accounts, With Add/Delete Rows Dynamically</h1>
+        </div>
+        
+        <div class="container-fluid">        
+            <table class="slds-table slds-table_bordered slds-table_cell-buffer"> 
+                <thead>
+                    <tr class="slds-text-title_caps">
+                        <th scope="col">
+                            <div class="slds-truncate">S.No</div>
+                        </th>
+                        <th scope="col">
+                            <div class="slds-truncate" title="Account Name">Account Name</div>
+                        </th>
+                        <th scope="col">
+                            <div class="slds-truncate" title="Account Number">Account Number</div>
+                        </th>
+                        <th scope="col">
+                            <div class="slds-truncate" title="Phone">Phone</div>
+                        </th>
+                        <th scope="col">
+                            <div class="slds-truncate" title="Action">Action</div>
+                        </th>
+                    </tr>
+                </thead>   
+                <tbody>  
+                    <aura:iteration items="{!v.accountList}" var="acc" indexVar="index">
+                        <tr>
+                            <td> 
+                                {!index + 1}
+                            </td>
+                            <td>
+                                <lightning:input name="accName" type="text" required="true" maxlength="50" label="Account Name" value="{!acc.Name}" />
+                            </td>
+                            <td>
+                                <lightning:input name="accNumber" type="text"  maxlength="10" label="Account Number" value="{!acc.AccountNumber}" />
+                            </td>
+                            <td>
+                                <lightning:input name="accPhone" type="phone" maxlength="10" label="Phone" value="{!acc.Phone}" />
+                            </td>
+                            
+                            <td>
+                                <aura:if isTrue="{!index == 0}">
+                                    <a onclick="{!c.addRow}">
+                                        <lightning:icon iconName="utility:add" class="slds-icon slds-icon_small" size="small" alternativeText="add"/>
+                                        <span class="slds-assistive-text">Add Icon</span>
+                                    </a>    
+                                    <aura:set attribute="else">
+                                        <a data-id="{!index}" onclick="{!c.removeRow}">
+                                            <lightning:icon variant="error" iconName="utility:delete" class="slds-icon slds-icon_small" size="small" alternativeText="icon"/>
+                                            <span class="slds-assistive-text">Delete Icon</span>
+                                        </a>
+                                    </aura:set> 
+                                </aura:if>
+                            </td> 
+                        </tr>             
+                    </aura:iteration>
+                </tbody>
+            </table>
+            <div class="slds-align_absolute-center slds-p-top_small">
+                <lightning:button variant="brand" label="Submit" title="Brand action" onclick="{!c.save}" />
+            </div>
+        </div>
+    </div>
+</aura:component>

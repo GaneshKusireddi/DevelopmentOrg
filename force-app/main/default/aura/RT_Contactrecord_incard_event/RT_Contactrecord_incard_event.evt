@@ -1,0 +1,4 @@
+<aura:event type="COMPONENT" description="by this event we are passing the selected ownwer id in the parent component">
+    <aura:attribute name="accountByEvent" type="User"/>
+    <aura:attribute name="Ownerid" type="string" />
+</aura:event>

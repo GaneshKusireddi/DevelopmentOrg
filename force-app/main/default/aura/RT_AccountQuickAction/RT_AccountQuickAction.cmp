@@ -1,0 +1,170 @@
+<aura:component controller="RT_AccountQuickActionController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction" access="global" >
+    <!-- Attribute declaration -->
+    <aura:attribute name="newAccount" type="Account" default="{'sobjectType':'Account',
+                                                             'Name':'',
+                                                             'AccountNumber':'',
+                                                             'AnnualRevenue':0,
+                                                             'Fax':'',
+                                                             'NumberOfEmployees':0,
+                                                             'Ownership':'',
+                                                             'Phone':'',
+                                                             'Sic':'',
+                                                             'TickerSymbol': '',
+                                                             'Website':''}"/>
+    <!-- picklist Attributes-->
+    <aura:attribute name="Industryoptions" type="List" default="['none','Agriculture','Apparel','Banking','Biotechnology','Chemicals',
+                                                                'Communications','Construction','Consulting','Education','Electronics',
+                                                                'Energy','Engineering','Entertainment','Environmental','Finance',
+                                                                'Food &amp; Beverage','Government','Healthcare','Hospitality','Insurance',
+                                                                'Machinery','Manufacturing','Media','NotForProfit','Recreation','Retail',
+                                                                'Shipping','Technology','Transportation','Utilities','Other']"/>
+    <aura:attribute name="ltngSelectedvalue" type="string" default="-none-"/>
+    
+    <aura:attribute name="OwnershipOptions" type="List" default="['none','Public','Private','Subsidiary','Other']"/> 
+    <aura:attribute name="SelectedOwnvalue" type="string" default="-none-"/>
+    
+    <aura:attribute name="RatingOptions" type="List" default="['none','Hot','Warm','Cold']"/> 
+    <aura:attribute name="SelectedRatvalue" type="string" default="-none-"/>
+    
+    <aura:attribute name="TypeOptions" type="List" default="['none','Prospect','Customer - Direct','Customer - Channel','Channel Partner / Reseller',
+                                                            'Installation Partner','Technology Partner','Other']"/> 
+    <aura:attribute name="SelectedTypevalue" type="string" default="-none-"/>
+    
+    <!--   Lookup attributes    --> 
+    <aura:attribute name="selectedRecord" type="Account" default="{}" description="Use,for store SELECTED sObject Record"/>
+    <aura:attribute name="listOfSearchRecords" type="List" description="Use,for store the list of search records which returns from apex class"/>
+    <aura:attribute name="SearchKeyWord" type="string"/>
+    <aura:attribute name="objectAPIName" type="string" default=""/>
+    <aura:attribute name="IconName" type="string" default=""/>
+    <aura:attribute name="label" type="string" default=""/>
+    <aura:attribute name="Message" type="String" default=""/>
+    
+    <!--declare events handlers-->  
+    <aura:handler name="oSelectedAccountEvent" event="c:RT_Accountevent" action="{!c.handleComponentEvent}"/>
+    
+    <!-- PAGE HEADER -->
+    <div>
+        <lightning:layout class="slds-page-header slds-page-header--object-home">
+            <lightning:layoutItem padding="horizontal-small">
+                <div class="page-section page-header">
+                    <h3 class="slds-text-heading--small">Account information</h3>
+                </div>
+            </lightning:layoutItem>
+        </lightning:layout>
+        <!-- / PAGE HEADER -->
+        
+        <!-- NEW Account FORM -->
+        <lightning:layout>
+            <lightning:layoutItem padding="around-small" size="6">
+                <fieldset class="slds-box slds-theme--default slds-container--small">
+                    <form class="slds-form--stacked">  
+                        
+                        <lightning:input type="Text" aura:id="Accountform" placeholder="type your first name..."
+                                         label="AccountName"
+                                         name="AccountName"
+                                         value="{!v.newAccount.Name}"/>
+                        
+                        <lightning:input type="Text" aura:id="Accountform" label="AccountNumber"
+                                         name="AccountNumber"
+                                         value="{!v.newAccount.AccountNumber}"/>
+                        
+                        <lightning:input type="number" aura:id="Accountform" label="AnnualRevenue"
+                                         name="AnnualRevenue" formatter="currency"
+                                         value="{!v.newAccount.AnnualRevenue}"/>
+                        
+                        <lightning:input type="Fax" aura:id="Accountform" label="Fax"
+                                         name="Fax" 
+                                         value="{!v.newAccount.Fax}"/> 
+                        
+                        <lightning:select name="Industry" label="Industry" 
+                                          value="{!v.newAccount.Industry}" aura:id="IndustryPicklist" >
+                            <aura:iteration items="{!v.Industryoptions}" var="opt">
+                                <option value="{!opt}">{!opt}</option>
+                            </aura:iteration>
+                        </lightning:select>
+                        
+                        <lightning:input type="decimal" aura:id="Accountform" label="NumberOfEmployees"
+                                         name="NumberOfEmployees"
+                                         value="{!v.newAccount.NumberOfEmployees}"/>
+                        
+                        <lightning:select name="Ownership" label="Ownership" 
+                                          value="{!v.newAccount.Ownership}" aura:id="OwnershipPicklist" >
+                            <aura:iteration items="{!v.OwnershipOptions}" var="opt">
+                                <option value="{!opt}">{!opt}</option>
+                            </aura:iteration>
+                        </lightning:select> 
+                        
+                        <lightning:input type="phone" aura:id="Accountform" label="Phone"
+                                         name="Phone" 
+                                         value="{!v.newAccount.Phone}"/>
+                        
+                        <!--  Client lookup field  -->
+                       
+                        <div onmouseleave="{!c.onblur}" aura:id="searchRes" class="slds-form-element slds-lookup slds-is-close" data-select="single">
+                            <label class="slds-form-element__label" for="lookup-348">ParentAccount</label>
+                            <!--This part is for display search bar for lookup-->  
+                            <div class="slds-form-element__control">
+                                <div class="slds-input-has-icon slds-input-has-icon--right">
+                                    <!-- This markup is for when an record is selected -->
+                                    <div aura:id="lookup-pill" class="slds-pill-container slds-hide">
+                                        <lightning:pill class="pillSize" label="{!v.selectedRecord.Name}" name="{!v.selectedRecord.ParentId}" onremove="{! c.clear }">
+                                            <aura:set attribute="media">
+                                                <lightning:icon iconName="{!v.IconName}" size="x-small" alternativeText="{!v.IconName}"/>
+                                            </aura:set>
+                                        </lightning:pill>
+                                    </div>
+                                    <div aura:id="lookupField" class="slds-show">
+                                        <lightning:icon class="slds-input__icon slds-show" iconName="utility:search" size="x-small" alternativeText="search"/>
+                                        <span class="slds-icon_container  slds-combobox__input-entity-icon" title="record">
+                                            <lightning:icon class="slds-icon slds-icon slds-icon_small slds-icon-text-default" iconName="{!v.IconName}" size="x-small" alternativeText="icon"/>
+                                            <span class="slds-assistive-text"></span>
+                                        </span>
+                                        <ui:inputText click="{!c.onfocus}" updateOn="keyup" keyup="{!c.keyPressController}" class="slds-lookup__search-input slds-input leftPaddingClass" value="{!v.SearchKeyWord}" placeholder="search.."/>
+                                    </div>   
+                                </div>
+                            </div>
+                            <!--This part is for Display typehead lookup result List-->  
+                            <ul style="min-height:40px;margin-top:0px !important" class="slds-listbox slds-listbox_vertical slds-dropdown slds-dropdown_fluid slds-lookup__menu slds" role="listbox">
+                                <lightning:spinner class="slds-hide" variant="brand" size="small" aura:id="mySpinner"/>
+                                <center> {!v.Message}</center>
+                                <aura:iteration items="{!v.listOfSearchRecords}" var="singleRec">
+                                    <c:RT_AccountQuickActionChild oAccount="{!singleRec}" IconName="{!v.IconName}"/>
+                                </aura:iteration>
+                            </ul>
+                        </div>
+                       
+                        <lightning:select name="Rating" label="Rating" 
+                                          value="{!v.newAccount.Rating}" aura:id="RatingPicklist" >
+                            <aura:iteration items="{!v.RatingOptions}" var="opt">
+                                <option value="{!opt}">{!opt}</option>
+                            </aura:iteration>
+                        </lightning:select>
+                        
+                        <lightning:input type="text" aura:id="Accountform" label="SicCode"
+                                         name="Sic"
+                                         value="{!v.newAccount.Sic}"/>
+                        
+                        <lightning:select name="Type" label="Type" 
+                                          value="{!v.newAccount.Type}" aura:id="TypePicklist" >
+                            <aura:iteration items="{!v.TypeOptions}" var="opt">
+                                <option value="{!opt}">{!opt}</option>
+                            </aura:iteration>
+                        </lightning:select>
+                        
+                        <lightning:input type="content" aura:id="Accountform" label="TickerSymbol"  
+                                         name="TickerSymbol"
+                                         value="{!v.newAccount.TickerSymbol}"/>
+                        
+                        <lightning:input type="url" aura:id="Accountform" label="Website"  
+                                         name="Website"
+                                         value="{!v.newAccount.Website}"/>
+                        
+                        <div class="slds-col modal-footer slds-modal__footer--small">        
+                            <lightning:button variant="brand" label="Save" onclick="{!c.SaveClick }" />
+                        </div>
+                    </form>
+                </fieldset>
+            </lightning:layoutItem>
+        </lightning:layout>
+    </div>
+</aura:component>

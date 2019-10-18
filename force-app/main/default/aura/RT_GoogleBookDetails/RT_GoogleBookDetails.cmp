@@ -1,0 +1,41 @@
+<aura:component  Controller = "RT_GoogleBookDetails"  implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction" access="global" >
+    <aura:attribute name="books" type="Object[]"/>
+    <aura:attribute name="searchkey" type="String"/>
+    
+    <!-- Book search Form  -->
+    <lightning:layout horizontalAlign="left" verticalAlign="end" >
+        <lightning:layoutItem padding="horizontal-medium" class="slds-grid_vertical-align-center"> 
+            <lightning:input type="search"
+                             aura:id="searchBook"
+                             name="searchBook"
+                             label=" "
+                             value="{!v.searchkey}"
+                             onchange="{!c.getBooks}"/>
+        </lightning:layoutItem>
+     <!--   <lightning:layoutItem padding="horizontal-medium" class="slds-grid_vertical-align-center"> 
+            <lightning:button class="slds-button" variant="brand" label="Search your book" onclick="{!c.getBooks}" />
+        </lightning:layoutItem> -->
+    </lightning:layout>
+    
+    <aura:if isTrue="{!v.books.length == 0? true:false}">
+        <aura:set attribute="else">
+            <div class="slds-p-horizontal--small boldFont">
+                <lightning:card iconName="custom:custom55" title="Related Results">
+                </lightning:card>
+                <div>
+                    <!--   BooksearchResults  -->
+                    <lightning:layout multipleRows="true" horizontalAlign="center">
+                        <aura:iteration items="{!v.books}" var="book1">
+                            <lightning:layoutItem flexibility="grow"  class="slds-m-right_small" > 
+                                
+                                <!--  Books As Tiles -->
+                                <c:RT_GoogleBookTile book="{!book1}"/>
+                                
+                            </lightning:layoutItem>
+                        </aura:iteration>
+                    </lightning:layout>
+                </div>
+            </div>
+        </aura:set>
+    </aura:if>
+</aura:component>

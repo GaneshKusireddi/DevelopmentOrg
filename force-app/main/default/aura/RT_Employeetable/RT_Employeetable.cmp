@@ -1,0 +1,24 @@
+<aura:component controller="RT_EmployeeTablecontroller" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+    <aura:handler name="init" value="{!this}" action="{!c.myAction}" />  
+    <aura:attribute name="lstEmployee" type="List" />
+    
+    <!-- Header -->
+    <lightning:card iconName="standard:avatar" title="List of Employees">
+    </lightning:card>
+    
+    <!-- Table  -->
+    <table class="slds-table slds-table_bordered slds-table_striped slds-table_cell-buffer slds-table_fixed-layout">
+        <thead>
+            <tr class="slds-text-heading_label">
+                <th scope="col"><div title="Name">Name</div></th>
+                <th scope="col"><div  title="Phone">Phone</div></th>
+                <th scope="col"><div  title="Email">Email</div></th>
+                <th scope="col"><div  title="Country">Country</div></th>
+                <th scope="col"><div  title="Action">Action</div></th>
+            </tr>
+        </thead>
+        <aura:iteration items="{!v.lstEmployee}" var="empObj" >
+            <c:RT_ChildEmployeetable childlstemployee="{!empObj}"/>
+            </aura:iteration>
+    </table> 
+</aura:component>

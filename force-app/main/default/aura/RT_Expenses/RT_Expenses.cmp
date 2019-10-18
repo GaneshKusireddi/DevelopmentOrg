@@ -1,0 +1,167 @@
+<aura:component controller="RT_ExpensesController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction" access="global" >
+    <!-- Attribute declaration -->
+    <aura:attribute name="newExpense" type="Expense__c" default="{ 'sobjectType': 'Expense__c',
+                                                                 'Amount__c':0,
+                                                                 'Date__c':'DD/MM/YY',
+                                                                 'Department__c':'',
+                                                                 'Description__c':'',
+                                                                 'Expense_Type__c':'',
+                                                                 'isDeleted__c':false,
+                                                                 'IsSubmitted__c':false,
+                                                                 'Location__c':'',
+                                                                 'Sales_Tax__c':0,
+                                                                 'Status__c':''	,
+                                                                 'Vendor__c':'' }"/>
+    <!-- picklist Attributes-->
+    <aura:attribute name="options" type="List" default="['none','Airfare','Car Expenses ( Gas, Repairs, Mileage)',
+                                                        'Dues','Gas-Rental Car','Gifts','Hotel','Mail and Courier','Meals and Entertainment','Mileage','Miscellaneous',
+                                                        'Office Supplies','Parking/Tolls','Phone/Fax','Rental Car','Software','Taxi','Travel']"/>
+    <aura:attribute name="ltngSelectedvalue" type="string" default="-none-"/>
+    
+    <aura:attribute name="Statusoptions" type="List" default="['None','Approved','Rejected','In Review',
+                                                              'Saved','Pending']"/> 
+    <aura:attribute name="Selectvalue" type="string" default="-none-"/>
+   
+    <!--   Lookup attributes    --> 
+    <aura:attribute name="selectedRecord" type="Account" default="{}" description="Use,for store SELECTED sObject Record"/>
+    <aura:attribute name="listOfSearchRecords" type="List" description="Use,for store the list of search records which returns from apex class"/>
+    <aura:attribute name="SearchKeyWord" type="string"/>
+    <aura:attribute name="objectAPIName" type="string" default=""/>
+    <aura:attribute name="IconName" type="string" default=""/>
+    <aura:attribute name="label" type="string" default=""/>
+    <aura:attribute name="Message" type="String" default=""/>
+    
+    <!--declare events handlers-->  
+    <aura:handler name="oSelectedAccountEvent" event="c:RT_Accountevent" action="{!c.handleComponentEvent}"/>
+    
+    <!-- Button -->
+    <div>
+        <lightning:button label="Create Expense" 
+                          class="slds-m-top--medium"
+                          variant="brand"
+                          onclick="{!c.clickCreate}"/>
+    </div>
+    <div class="slds-hide" aura:id="showModelwin">
+        
+       <!-- PAGE HEADER -->
+        <lightning:layout class="slds-page-header slds-page-header--object-home">
+            <lightning:layoutItem>
+                <lightning:icon iconName="standard:currency" alternativeText="My Expenses"/>
+            </lightning:layoutItem>
+            <lightning:layoutItem padding="horizontal-small">
+                <div class="page-section page-header">
+                    <h1 class="slds-text-heading--label">Expenses</h1>
+                    <h2 class="slds-text-heading--medium">My Expenses</h2>
+                </div>
+            </lightning:layoutItem>
+        </lightning:layout>
+        <!-- / PAGE HEADER -->
+        
+        <!-- NEW EXPENSE FORM -->
+        <lightning:layout>
+            <lightning:layoutItem padding="around-small" size="6">
+                <fieldset class="slds-box slds-theme--default slds-container--small">
+                    <legend id="newexpenseform" class="slds-text-heading--small  slds-p-vertical--medium">
+                        Add Expense
+                    </legend>
+                    <!-- CREATE NEW EXPENSE FORM -->
+                    <form class="slds-form--stacked">          
+                       
+                        <lightning:input type="number" aura:id="expenseform" label="Amount"
+                                         name="expenseamount"
+                                         value="{!v.newExpense.Amount__c}"/>
+                        
+                        <!--  Client lookup field  -->
+                        <!-- https://www.lightningdesignsystem.com/components/lookups/ --> 
+                        
+                        <div onmouseleave="{!c.onblur}" aura:id="searchRes" class="slds-form-element slds-lookup slds-is-close" data-select="single">
+                            <label class="slds-form-element__label" for="lookup-348">Client</label>
+                            <!--This part is for display search bar for lookup-->  
+                            <div class="slds-form-element__control">
+                                
+                                <div class="slds-input-has-icon slds-input-has-icon--right">
+                                    <!-- This markup is for when an record is selected -->
+                                    <div aura:id="lookup-pill" class="slds-pill-container slds-hide">
+                                        <lightning:pill class="pillSize" label="{!v.selectedRecord.Name}" name="{!v.selectedRecord.Client__c}" onremove="{! c.clear }">
+                                            <aura:set attribute="media">
+                                                <lightning:icon iconName="{!v.IconName}" size="x-small" alternativeText="{!v.IconName}"/>
+                                            </aura:set>
+                                        </lightning:pill>
+                                    </div>
+                                    <div aura:id="lookupField" class="slds-show">
+                                        <lightning:icon class="slds-input__icon slds-show" iconName="utility:search" size="x-small" alternativeText="search"/>
+                                        <span class="slds-icon_container  slds-combobox__input-entity-icon" title="record">
+                                            <lightning:icon class="slds-icon slds-icon slds-icon_small slds-icon-text-default" iconName="{!v.IconName}" size="x-small" alternativeText="icon"/>
+                                            <span class="slds-assistive-text"></span>
+                                        </span>
+                                        <ui:inputText click="{!c.onfocus}" updateOn="keyup" keyup="{!c.keyPressController}" class="slds-lookup__search-input slds-input leftPaddingClass" value="{!v.SearchKeyWord}" placeholder="search.."/>
+                                    </div>   
+                                </div>
+                            </div>
+                            <!--This part is for Display typehead lookup result List-->  
+                            <ul style="min-height:40px;margin-top:0px !important" class="slds-listbox slds-listbox_vertical slds-dropdown slds-dropdown_fluid slds-lookup__menu slds" role="listbox">
+                                <lightning:spinner class="slds-hide" variant="brand" size="small" aura:id="mySpinner"/>
+                                <center> {!v.Message}</center>
+                                <aura:iteration items="{!v.listOfSearchRecords}" var="singleRec">
+                                    <c:RT_Expenseschild oAccount="{!singleRec}" IconName="{!v.IconName}"/>
+                                </aura:iteration>
+                            </ul>
+                        </div>
+                        
+                        <lightning:input type="date" aura:id="expenseform" label="ExpenseDate"
+                                         name="expensedate"
+                                         value="{!v.newExpense.Date__c}"/>
+                        
+                        <lightning:input aura:id="expenseform" label="Department"
+                                         name="expenseDepartment"
+                                         value="{!v.newExpense.Department__c}"/>
+                        
+                        <lightning:input aura:id="expenseform" label="Description"
+                                         name="expenseDescription"
+                                         value="{!v.newExpense.Description__c}"/>
+                        
+                        <lightning:select name="expenseExpenseType" label="ExpenseType" 
+                                          value="{!v.newExpense.Expense_Type__c}" aura:id="statusPicklist" >
+                            <aura:iteration items="{!v.options}" var="opt">
+                                <option value="{!opt}">{!opt}</option>
+                            </aura:iteration>
+                        </lightning:select>                 
+                        
+                        <lightning:input type="checkbox" aura:id="expenseform" label="isDeleted"  
+                                         name="expenseisDeleted"
+                                         checked="{!v.newExpense.isDeleted__c}"/>
+                        
+                        <lightning:input type="checkbox" aura:id="expenseform" label="IsSubmitted"  
+                                         name="expenseIsSubmitted"
+                                         checked="{!v.newExpense.IsSubmitted__c}"/>
+                        
+                        <lightning:input aura:id="expenseform" label="Location"  
+                                         name="expenseLocation"
+                                         value="{!v.newExpense.Location__c}"/>
+                        
+                        <lightning:input type="number" aura:id="expenseform" label="SalesTax"
+                                         name="expenseSalesTax"
+                                         formatter="currency"
+                                         value="{!v.newExpense.Sales_Tax__c}"/>
+                        
+                        <lightning:select name="expenseStatus" label="Status" 
+                                          value="{!v.newExpense.Status__c}" aura:id="statusPicklist" >
+                            <aura:iteration items="{!v.Statusoptions}" var="opt">
+                                <option value="{!opt}">{!opt}</option>
+                            </aura:iteration>
+                        </lightning:select> 
+                        
+                        <lightning:input aura:id="expenseform" label="Vendor"
+                                         name="expenseVendor"
+                                         value="{!v.newExpense.Vendor__c}"/>
+                        
+                        <lightning:button label="Insert Expense" 
+                                          class="slds-m-top--medium"
+                                          variant="brand"
+                                          onclick="{!c.insertExpense}"/>
+                    </form>
+                </fieldset>
+            </lightning:layoutItem>
+        </lightning:layout>
+    </div>
+</aura:component>

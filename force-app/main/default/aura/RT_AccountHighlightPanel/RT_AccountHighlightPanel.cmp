@@ -1,0 +1,27 @@
+<aura:component controller="RT_AccountHighlightPanel"
+                implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction" access="global" >
+    <aura:handler name="init" action="{!c.doInit}" value="{!this}" />
+    <aura:attribute name="fieldvalues" type="Object" />
+    
+    <!-- Header  -->
+    <div class="slds-page-header slds-page-header_record-home">
+        <div class="slds-page-header__row-title">
+            <h1 class="slds-page-header__title slds-truncate" title="AccountFieldSet">AccountFieldSet</h1>
+        </div>
+        
+       
+            <ul class="slds-page-header__detail-row">
+                <aura:iteration items="{!v.fieldvalues}" var="Obj">
+                    <div class="slds-page-header__row slds-page-header__row_gutters">
+                        <div class="slds-page-header__col-details"> 
+                            <li class="slds-page-header__detail-block">
+                                <div> {!Obj.Fieldsetlabel}  </div>  <br/>
+                                <div> {!Obj.FieldsetValue} </div>
+                            </li> 
+                        </div>
+                    </div>
+                </aura:iteration>
+            </ul>
+    </div>
+  
+</aura:component>

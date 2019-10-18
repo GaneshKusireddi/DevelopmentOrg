@@ -1,0 +1,40 @@
+<apex:page standardController="Account" extensions="RT_AccPage" recordSetVar="accounts" sidebar="false" showHeader="false">
+    <apex:form >
+        <apex:pageBlock title="My Task 2" mode="edit">
+            <apex:pageMessages />
+           
+            <apex:pageBlockSection title="Standard Object Details" columns="1">
+                <apex:pageBlockTable value="{!accounts}" var="a">
+                    
+                    <apex:column value="{!a.name}"/>
+                    
+                    <apex:column headerValue="Industry">
+                        <apex:inputField value="{!a.Industry}"/>
+                    </apex:column>
+                    <apex:column headerValue="Phone">
+                        <apex:inputField value="{!a.Phone}"/>
+                    </apex:column>
+                    <apex:column headerValue="AccountNumber">
+                        <apex:inputField value="{!a.AccountNumber}"/>
+                    </apex:column>
+                     <apex:column headerValue="Type">
+                        <apex:inputField value="{!a.Type}"/>
+                    </apex:column>
+                    
+                    
+                </apex:pageBlockTable>
+                
+                
+            </apex:pageBlockSection>
+             <apex:pageBlockButtons >
+                  <apex:commandButton action="{!save}" value="Save"/>
+                
+            </apex:pageBlockButtons>
+            <apex:panelGrid columns="4">
+                <apex:commandLink action="{!next}">NEXT</apex:commandLink>
+                <apex:commandLink action="{!previous}">PREVIOUS</apex:commandLink>
+            </apex:panelGrid>
+        </apex:pageBlock>
+    </apex:form>
+    
+</apex:page>

@@ -1,0 +1,62 @@
+<aura:component controller="RT_EmployeeTablecontroller">
+    <aura:attribute name="childlstemployee" type="object" />
+    <aura:attribute name="isEdit" type="boolean" default='false' />
+	 <tbody>
+                <tr>
+                    <td>
+                        <div>
+                        <aura:if isTrue="{!v.isEdit}" >
+                            <lightning:input value="{!v.childlstemployee.Name}"/>
+                            <aura:set attribute="else">
+                                <ui:outputText value="{!v.childlstemployee.Name}"/>
+                            </aura:set>
+                        </aura:if>
+                        </div> 
+                    </td>
+                    <td>
+                        <div>
+                        <aura:if isTrue="{!v.isEdit}">
+                            <lightning:input value="{!v.childlstemployee.Phone__c}"/>
+                            <aura:set attribute="else">
+                                <ui:outputText value="{!v.childlstemployee.Phone__c}"/>
+                            </aura:set>
+                        </aura:if>
+                        </div> 
+                    </td>
+                    <td>
+                        <div>
+                        <aura:if isTrue="{!v.isEdit}">
+                            <lightning:input value="{!v.childlstemployee.Email__c}"/>
+                            <aura:set attribute="else">
+                                <ui:outputText value="{!v.childlstemployee.Email__c}"/>
+                            </aura:set>
+                        </aura:if>
+                        </div> 
+                    </td>
+                    <td>
+                        <div>
+                        <aura:if isTrue="{!v.isEdit}">
+                            <lightning:input value="{!v.childlstemployee.Country__c}"/>
+                            <aura:set attribute="else">
+                                <ui:outputText value="{!v.childlstemployee.Country__c}"/>
+                            </aura:set>
+                        </aura:if> 
+                        </div> 
+                    </td>
+                     <td>
+                        <button class="{! if(v.isEdit, ' slds-hide ' , ' slds-button ')}" onclick="{!c.editRecord}">
+                            <lightning:icon iconName="utility:edit" size="xx-small" alternativeText="edit"/>
+                        </button>
+                        <div class="{! if(v.isEdit, ' slds-show ', ' slds-hide ')}">
+                            <button class="slds-button" onclick="{!c.saveIt}">
+                                <lightning:icon iconName="utility:save" size="xx-small"/>
+                            </button>
+                            <button class="slds-button" onclick="{!c.closeIt}">
+                                <lightning:icon iconName="utility:close" size="xx-small"/>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+           
+        </tbody>
+</aura:component>

@@ -1,0 +1,3 @@
+<aura:event type="COMPONENT" description="by this event we are passing the selected account in the parent component">
+    <aura:attribute name="accountByEvent" type="account"/>
+   </aura:event>

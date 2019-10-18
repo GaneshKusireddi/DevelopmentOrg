@@ -1,0 +1,36 @@
+<aura:component controller="RT_ObjectsMetadataController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+    <aura:handler name="init" value="{!this}" action="{!c.myAction}" /> 
+    <aura:attribute name="objectlst" type="String"  />
+    <aura:attribute name="returnResult" type="Object" />
+    
+    <div class="slds-page-header slds-page-header_object-home" >
+        <!-- Header -->
+        <lightning:card title="{!v.objectlst}"> </lightning:card>
+       
+    </div>
+     <!-- Table  -->
+        <table class="slds-table slds-table_bordered slds-table_striped slds-table_cell-buffer slds-table_fixed-layout">
+            <thead>
+                <tr class="slds-text-title--caps">
+                    <th scope="col">
+                        <div class="slds-truncate" title="FieldName">FieldName</div>
+                    </th>
+                    <th scope="col">
+                        <div class="slds-truncate" title="FieldLabel">FieldLabel</div>
+                    </th>
+                    <th scope="col">
+                        <div class="slds-truncate" title="DataType">DataType</div>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <aura:iteration items="{!v.returnResult}" var="Obj">
+                    <tr>
+                        <th scope="row"><td><div title="{!Obj.Fieldname}">{!Obj.Fieldname}</div></td></th>
+                        <th scope="row"><td><div title="{!Obj.Fieldlabel}">{!Obj.Fieldlabel}</div></td></th>
+                        <th scope="row"><td><div title="{!Obj.Fielddatatype}">{!Obj.Fielddatatype}</div></td></th>
+                    </tr>
+                </aura:iteration> 
+            </tbody>
+        </table> 
+</aura:component>
